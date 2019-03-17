@@ -2,6 +2,12 @@
 
 > React Hook for managing abortable `Promise`s.
 
+```bash
+yarn add use-abortable-promise
+```
+
+## Usage
+
 ```js
 function App() {
   const [offset, setOffset] = useState(0);
