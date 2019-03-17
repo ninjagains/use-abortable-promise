@@ -3,6 +3,16 @@
   "version": "1.1.0",
   "main": "dist/index.js",
   "repository": "git@github.com:ninjagains/use-abortable-promise.git",
+  "keywords": [
+    "AbortController",
+    "react",
+    "hooks",
+    "promise",
+    "abort",
+    "cancellable",
+    "fetch",
+    "use-promise"
+  ],
   "author": "hanse",
   "files": [
     "dist/**/*"
