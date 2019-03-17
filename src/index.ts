@@ -2,11 +2,19 @@ import { useMemo, useCallback } from 'react';
 import usePromise, { State } from './usePromise';
 import createAbortController from './createAbortController';
 
+type Options = {
+  abortController?: AbortController;
+};
+
 function useAbortablePromise<T>(
   promise: (signal: AbortSignal | undefined) => Promise<T>,
-  inputs: Array<any>
+  inputs: Array<any>,
+  { abortController }: Options = {}
 ) {
-  const controller = useMemo(createAbortController, inputs);
+  const controller = useMemo(() => {
+    return abortController || createAbortController();
+  }, inputs);
+
   const abort = useCallback(() => controller.abort(), [controller]);
   const promiseFn = useCallback(promise, inputs);
 

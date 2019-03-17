@@ -109,7 +109,6 @@ function usePromise<T>(
     };
   }, [promiseFn]);
 
-  console.log(state);
   return state;
 }
 

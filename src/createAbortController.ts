@@ -6,7 +6,7 @@ function createAbortController() {
   return {
     abort: () => {},
     signal: undefined
-  };
+  } as any;
 }
 
 export default createAbortController;
