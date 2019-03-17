@@ -1,8 +1,28 @@
-# use-abortable-promise
+import React, { useState } from 'react';
+import { render } from 'react-dom';
+import useAbortablePromise from 'use-abortable-promise';
 
-> React Hook for managing abortable `Promise`s.
+async function timeout(ms: number): Promise<never> {
+  await new Promise(resolve => setTimeout(resolve, ms));
+  throw new Error('Timeout');
+}
 
-```js
+async function fetchUserById(
+  id: number,
+  options: RequestInit = {}
+): Promise<{ id: number; name: string }> {
+  const response = await Promise.race([
+    timeout(6000),
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, options)
+  ]);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
 function App() {
   const [offset, setOffset] = useState(0);
 
@@ -36,10 +56,5 @@ function App() {
     </>
   );
 }
-```
 
-See more in the [example](https://github.com/ninjagains/use-abortable-promise/blob/master/example) app.
-
-## License
-
-MIT
+render(<App />, document.getElementById('root'));

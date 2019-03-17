@@ -20,4 +20,6 @@ function useAbortablePromise<T>(
   return [state, abort] as [State<T>, () => void];
 }
 
+export { usePromise };
+
 export default useAbortablePromise;
