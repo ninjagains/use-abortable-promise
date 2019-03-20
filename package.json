@@ -20,11 +20,19 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "yarn build",
+    "test": "jest"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.11",
     "@types/react": "16.8.8",
+    "jest": "^24.5.0",
     "prettier": "1.16.4",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-hooks-testing-library": "^0.3.7",
+    "react-testing-library": "^6.0.1",
+    "ts-jest": "^24.0.0",
     "ts-node": "8.0.3",
     "typescript": "3.3.3333"
   },
@@ -33,5 +41,9 @@
   },
   "prettier": {
     "singleQuote": true
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom"
   }
 }
