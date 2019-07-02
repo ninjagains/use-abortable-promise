@@ -1,7 +1,5 @@
-import { renderHook, cleanup } from 'react-hooks-testing-library';
+import { renderHook } from 'react-hooks-testing-library';
 import useAbortablePromise from '../';
-
-afterEach(cleanup);
 
 const delay = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
