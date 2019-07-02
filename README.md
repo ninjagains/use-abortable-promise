@@ -46,6 +46,73 @@ function App() {
 
 See more in the [example](https://github.com/ninjagains/use-abortable-promise/blob/master/example) app.
 
+## Composing New Hooks
+
+The power of React Hooks let you compose and create even more customized hooks wihout a lot of effort. Take for example a `useRest` hook that automatically wire up `fetch` that automatically aborts on timeouts using `use-abortable-promise`.
+
+```js
+import useAbortablePromise from 'use-abortable-promise';
+
+function delay(ms = 1000) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchJson(input: RequestInfo, init?: RequestInit) {
+  const response = await fetch(input, init);
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  return response.json();
+}
+
+export default function useRest<T>(
+  fn: (fetch: typeof fetchJson) => Promise<T>,
+  inputs: Array<unknown>
+) {
+  const [result, abort] = useAbortablePromise(async signal => {
+    try {
+      const fetchWithSignal: typeof fetchJson = (input, init) =>
+        fetchJson(input, {
+          ...init,
+          signal
+        });
+
+      return await Promise.race([
+        fn(fetchWithSignal),
+        delay(15000).then(() => Promise.reject(new Error('Timeout')))
+      ]);
+    } catch (error) {
+      if (error.message === 'Timeout') {
+        abort();
+      }
+
+      throw error;
+    }
+  }, inputs);
+  return result;
+}
+```
+
+Use it in your components:
+
+```js
+function UserList() {
+  const { data, error, loading } = useRest(
+    fetch =>
+      Promise.all([
+        fetch('/users/inactive'),
+        fetch('/users/active'),
+        Promise.resolve(Math.random())
+      ]),
+    []
+  );
+
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+}
+```
+
 ## License
 
 MIT
