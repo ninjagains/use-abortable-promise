@@ -99,6 +99,7 @@ Use it in your components:
 
 ```js
 function UserList() {
+  const [refreshCount, setRefreshCount] = useState(0);
   const { data, error, loading } = useRest(
     fetch =>
       Promise.all([
@@ -106,10 +107,15 @@ function UserList() {
         fetch('/users/active'),
         Promise.resolve(Math.random())
       ]),
-    []
+    [refreshCount]
   );
 
-  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+  return (
+    <>
+      <button onClick={() => setRefreshCount(c => c + 1)}>Refresh</button>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </>
+  );
 }
 ```
 
