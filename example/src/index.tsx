@@ -2,19 +2,31 @@ import React, { useState } from 'react';
 import { render } from 'react-dom';
 import useAbortablePromise from 'use-abortable-promise';
 
-async function timeout(ms: number): Promise<never> {
-  await new Promise(resolve => setTimeout(resolve, ms));
-  throw new Error('Timeout');
+function timeout(ms = 1000) {
+  let timeoutId: any;
+  return {
+    start(): Promise<never> {
+      return new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Timeout'));
+        }, ms);
+      });
+    },
+    clear() {
+      clearTimeout(timeoutId);
+    },
+  };
 }
 
 async function fetchUserById(
   id: number,
   options: RequestInit = {}
 ): Promise<{ id: number; name: string }> {
+  const { start, clear } = timeout(1000);
   const response = await Promise.race([
-    timeout(6000),
-    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, options)
-  ]);
+    start(),
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, options),
+  ]).finally(clear);
 
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -27,12 +39,12 @@ function App() {
   const [offset, setOffset] = useState(0);
 
   const [{ data, loading, error }, abort] = useAbortablePromise(
-    async signal => {
+    async (signal) => {
       try {
         return await Promise.all([
           fetchUserById(offset + 1, { signal }),
           fetchUserById(offset + 2, { signal }),
-          fetchUserById(offset + 3, { signal })
+          fetchUserById(offset + 3, { signal }),
         ]);
       } catch (error) {
         if (error.message === 'Timeout') {
@@ -48,11 +60,12 @@ function App() {
   return (
     <>
       <button onClick={() => abort()}>Abort</button>
-      <button onClick={() => setOffset(offset => offset + 1)}>
+      <button onClick={() => setOffset((offset) => offset + 1)}>
         Increase Offset ({offset})
       </button>
-      <pre>{JSON.stringify({ data, loading, error }, null, 2)}</pre>
-      {error && <p style={{ color: 'red' }}>{error.message}</p>}
+      <pre>
+        {JSON.stringify({ data, loading, error: error?.message }, null, 2)}
+      </pre>
     </>
   );
 }
