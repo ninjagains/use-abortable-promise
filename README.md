@@ -1,6 +1,6 @@
 # use-abortable-promise
 
-> React Hook for managing abortable `Promise`s (e.g. [fetch()](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
+> Hook for managing abortable `Promise`s (e.g. [fetch()](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)) inside React components.
 
 ```bash
 yarn add use-abortable-promise
@@ -48,7 +48,7 @@ See more in the [example](https://github.com/ninjagains/use-abortable-promise/bl
 
 ## Composing New Hooks
 
-The power of React Hooks let you compose and create even more customized hooks wihout a lot of effort. Take for example a `useRest` hook that automatically wire up `fetch` that automatically aborts on timeouts using `use-abortable-promise`.
+The power of React Hooks let you compose and create even more customized hooks without a lot of effort. Take for example a `useRest` that wires up a `fetch` that automatically aborts on timeouts using `use-abortable-promise`.
 
 ```js
 import useAbortablePromise from 'use-abortable-promise';

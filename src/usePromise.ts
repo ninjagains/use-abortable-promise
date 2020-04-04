@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, DependencyList } from 'react';
 
 class AbortError extends Error {
   constructor() {
@@ -56,7 +56,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
 
 function usePromise<T>(
   promise: () => Promise<T>,
-  inputs: Array<any>,
+  inputs: DependencyList,
   signal?: AbortSignal | null,
   onCancel?: () => void
 ) {
@@ -65,8 +65,6 @@ function usePromise<T>(
     error: null,
     loading: false
   });
-
-  const promiseFn = useCallback(promise, inputs);
 
   useEffect(() => {
     let unmounted = false;
@@ -87,7 +85,7 @@ function usePromise<T>(
 
     dispatch({ type: 'pending' });
 
-    promiseFn().then(
+    promise().then(
       result => {
         if (unmounted || aborted) return;
         dispatch({ type: 'resolved', data: result });
@@ -107,7 +105,7 @@ function usePromise<T>(
       }
       onCancel && onCancel();
     };
-  }, [promiseFn]);
+  }, inputs);
 
   return state;
 }
