@@ -1,6 +1,6 @@
 # use-abortable-promise
 
-> React Hook for managing abortable `Promise`s.
+> React Hook for managing abortable `Promise`s (e.g. [fetch()](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API))
 
 ```bash
 yarn add use-abortable-promise
@@ -53,8 +53,20 @@ The power of React Hooks let you compose and create even more customized hooks w
 ```js
 import useAbortablePromise from 'use-abortable-promise';
 
-function delay(ms = 1000) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function timeout(ms = 1000) {
+  let timeoutId: any;
+  return {
+    start(): Promise<never> {
+      return new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new TimeoutError('Timeout'));
+        }, ms);
+      });
+    },
+    clear() {
+      clearTimeout(timeoutId);
+    }
+  };
 }
 
 async function fetchJson(input: RequestInfo, init?: RequestInit) {
@@ -79,10 +91,11 @@ export default function useRest<T>(
           signal
         });
 
+      const { start, clear } = timeout(15000);
       return await Promise.race([
-        fn(fetchWithSignal),
-        delay(15000).then(() => Promise.reject(new Error('Timeout')))
-      ]);
+        start()
+        fn(fetchWithSignal)
+      ]).finally(clear);
     } catch (error) {
       if (error.message === 'Timeout') {
         abort();
