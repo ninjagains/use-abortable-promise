@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, DependencyList } from 'react';
+import { DependencyList, useEffect, useReducer } from 'react';
 
 class AbortError extends Error {
   constructor() {
@@ -30,7 +30,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         ...state,
         error: null,
         data: action.data,
-        loading: false
+        loading: false,
       };
 
     case 'rejected':
@@ -38,7 +38,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         ...state,
         data: null,
         error: action.error,
-        loading: false
+        loading: false,
       };
 
     case 'pending':
@@ -46,7 +46,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         ...state,
         error: null,
         data: null,
-        loading: true
+        loading: true,
       };
 
     default:
@@ -54,7 +54,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
   }
 }
 
-function usePromise<T>(
+export function usePromise<T>(
   promise: () => Promise<T>,
   inputs: DependencyList,
   signal?: AbortSignal | null,
@@ -63,7 +63,7 @@ function usePromise<T>(
   const [state, dispatch] = useReducer(reducer, {
     data: null,
     error: null,
-    loading: false
+    loading: false,
   });
 
   useEffect(() => {
@@ -86,12 +86,12 @@ function usePromise<T>(
     dispatch({ type: 'pending' });
 
     promise().then(
-      result => {
+      (result) => {
         if (unmounted || aborted) return;
         dispatch({ type: 'resolved', data: result });
         signal && signal.removeEventListener('abort', abort);
       },
-      error => {
+      (error) => {
         if (unmounted || aborted) return;
         dispatch({ type: 'rejected', error });
         signal && signal.removeEventListener('abort', abort);
@@ -109,5 +109,3 @@ function usePromise<T>(
 
   return state;
 }
-
-export default usePromise;

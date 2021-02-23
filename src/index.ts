@@ -1,15 +1,16 @@
-import { useMemo, useCallback, DependencyList } from 'react';
-import usePromise, { State } from './usePromise';
-import createAbortController from './createAbortController';
+import { DependencyList, useCallback, useMemo } from 'react';
 
-type Options = {
+import { createAbortController } from './createAbortController';
+import { State, usePromise } from './usePromise';
+
+export interface UseAbortablePromiseOptions {
   abortController?: AbortController;
-};
+}
 
 function useAbortablePromise<T>(
   promise: (signal: AbortSignal | undefined) => Promise<T>,
   inputs: DependencyList,
-  { abortController }: Options = {}
+  { abortController }: UseAbortablePromiseOptions = {}
 ) {
   const controller = useMemo(() => {
     return abortController || createAbortController();
@@ -28,6 +29,4 @@ function useAbortablePromise<T>(
   return [state, abort] as [State<T>, () => void];
 }
 
-export { usePromise };
-
-export default useAbortablePromise;
+export { usePromise, useAbortablePromise, createAbortController };
