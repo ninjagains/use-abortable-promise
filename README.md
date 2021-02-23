@@ -9,16 +9,19 @@ yarn add use-abortable-promise
 ## Usage
 
 ```js
+import * as React from 'react';
+import { useAbortablePromise } from 'use-abortable-promise';
+
 function App() {
-  const [offset, setOffset] = useState(0);
+  const [offset, setOffset] = React.useState(0);
 
   const [{ data, loading, error }, abort] = useAbortablePromise(
-    async signal => {
+    async (signal) => {
       try {
         return await Promise.all([
           fetchUserById(offset + 1, { signal }),
           fetchUserById(offset + 2, { signal }),
-          fetchUserById(offset + 3, { signal })
+          fetchUserById(offset + 3, { signal }),
         ]);
       } catch (error) {
         if (error.message === 'Timeout') {
@@ -34,7 +37,7 @@ function App() {
   return (
     <>
       <button onClick={() => abort()}>Abort</button>
-      <button onClick={() => setOffset(offset => offset + 1)}>
+      <button onClick={() => setOffset((offset) => offset + 1)}>
         Increase Offset ({offset})
       </button>
       <pre>{JSON.stringify({ data, loading, error }, null, 2)}</pre>
@@ -51,23 +54,7 @@ See more in the [example](https://github.com/ninjagains/use-abortable-promise/bl
 The power of React Hooks let you compose and create even more customized hooks without a lot of effort. Take for example a `useRest` that wires up a `fetch` that automatically aborts on timeouts using `use-abortable-promise`.
 
 ```js
-import useAbortablePromise from 'use-abortable-promise';
-
-function timeout(ms = 1000) {
-  let timeoutId: any;
-  return {
-    start(): Promise<never> {
-      return new Promise((_, reject) => {
-        timeoutId = setTimeout(() => {
-          reject(new TimeoutError('Timeout'));
-        }, ms);
-      });
-    },
-    clear() {
-      clearTimeout(timeoutId);
-    }
-  };
-}
+import { useAbortablePromise, timeout } from 'use-abortable-promise';
 
 async function fetchJson(input: RequestInfo, init?: RequestInit) {
   const response = await fetch(input, init);
@@ -79,7 +66,7 @@ async function fetchJson(input: RequestInfo, init?: RequestInit) {
   return response.json();
 }
 
-export default function useRest<T>(
+export function useRest<T>(
   fn: (fetch: typeof fetchJson) => Promise<T>,
   inputs: Array<unknown>
 ) {
@@ -111,21 +98,24 @@ export default function useRest<T>(
 Use it in your components:
 
 ```js
+import { useReducer } from 'react';
+import { useRest } from './useRest';
+
 function UserList() {
-  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshCount, refresh] = useReducer((x) => x + 1, 0);
   const { data, error, loading } = useRest(
-    fetch =>
+    (fetch) =>
       Promise.all([
         fetch('/users/inactive'),
         fetch('/users/active'),
-        Promise.resolve(Math.random())
+        Promise.resolve(Math.random()),
       ]),
     [refreshCount]
   );
 
   return (
     <>
-      <button onClick={() => setRefreshCount(c => c + 1)}>Refresh</button>
+      <button onClick={refresh}>Refresh</button>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </>
   );

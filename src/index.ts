@@ -30,3 +30,4 @@ function useAbortablePromise<T>(
 }
 
 export { usePromise, useAbortablePromise, createAbortController };
+export { timeout } from './timeout';
