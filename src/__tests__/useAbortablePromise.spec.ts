@@ -47,7 +47,7 @@ test('custom AbortController', async () => {
   const abort = jest.fn();
   const { result, unmount } = renderHook(() =>
     useAbortablePromise(
-      () => delay(100).then(() => Promise.resolve('should have been aborted')),
+      () => delay(1000).then(() => Promise.resolve('should have been aborted')),
       [],
       {
         abortController: {

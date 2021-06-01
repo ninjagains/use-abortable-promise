@@ -1,4 +1,6 @@
-import { DependencyList, useEffect, useReducer } from 'react';
+import { DependencyList, useEffect, useMemo, useReducer } from 'react';
+
+import { createAbortController } from './createAbortController';
 
 class AbortError extends Error {
   constructor() {
@@ -58,17 +60,24 @@ function reducer<T>(state: State<T>, action: Action<T>) {
   }
 }
 
-export function usePromise<T>(
-  promise: () => Promise<T>,
+export interface UseAbortablePromiseOptions {
+  abortController?: AbortController;
+}
+
+export function useAbortablePromise<T>(
+  promise: (signal: AbortSignal | undefined) => Promise<T>,
   inputs: DependencyList,
-  signal?: AbortSignal | null,
-  onCancel?: () => void
+  { abortController }: UseAbortablePromiseOptions = {}
 ) {
   const [state, dispatch] = useReducer(reducer, {
     data: null,
     error: null,
     loading: false,
   });
+
+  const controller = useMemo<AbortController>(() => {
+    return abortController || createAbortController();
+  }, [abortController]);
 
   useEffect(() => {
     let unmounted = false;
@@ -79,37 +88,41 @@ export function usePromise<T>(
       dispatch({ type: REJECTED, error: new AbortError() });
     }
 
-    if (signal) {
-      if (signal.aborted) {
+    if (controller.signal) {
+      if (controller.signal.aborted) {
         throw new AbortError();
       }
 
-      signal.addEventListener('abort', abort);
+      controller.signal.addEventListener('abort', abort);
     }
 
     dispatch({ type: PENDING });
 
-    promise().then(
+    promise(controller.signal).then(
       (result) => {
         if (unmounted || aborted) return;
         dispatch({ type: RESOLVED, data: result });
-        signal && signal.removeEventListener('abort', abort);
+        if (controller.signal) {
+          controller.signal.removeEventListener('abort', abort);
+        }
       },
       (error) => {
         if (unmounted || aborted) return;
         dispatch({ type: REJECTED, error });
-        signal && signal.removeEventListener('abort', abort);
+        if (controller.signal) {
+          controller.signal.removeEventListener('abort', abort);
+        }
       }
     );
 
     return () => {
       unmounted = true;
-      if (signal) {
-        signal.removeEventListener('abort', abort);
+      controller.abort();
+      if (controller.signal) {
+        controller.signal.removeEventListener('abort', abort);
       }
-      onCancel && onCancel();
     };
   }, inputs);
 
-  return state;
+  return [state, () => controller.abort()] as [State<T>, () => void];
 }
