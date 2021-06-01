@@ -1,7 +1,7 @@
 import { DependencyList, useCallback, useMemo } from 'react';
+import { State, usePromise } from './usePromise';
 
 import { createAbortController } from './createAbortController';
-import { State, usePromise } from './usePromise';
 
 export interface UseAbortablePromiseOptions {
   abortController?: AbortController;
@@ -30,4 +30,3 @@ function useAbortablePromise<T>(
 }
 
 export { usePromise, useAbortablePromise, createAbortController };
-export { timeout } from './timeout';

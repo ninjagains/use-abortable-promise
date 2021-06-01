@@ -56,6 +56,23 @@ The power of React Hooks let you compose and create even more customized hooks w
 ```js
 import { useAbortablePromise, timeout } from 'use-abortable-promise';
 
+function timeout(ms: number) {
+  let timeoutId: any;
+  return {
+    start(): Promise<never> {
+      return new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Timeout'));
+        }, ms);
+      });
+    },
+    clear() {
+      clearTimeout(timeoutId);
+    },
+  };
+}
+
+
 async function fetchJson(input: RequestInfo, init?: RequestInit) {
   const response = await fetch(input, init);
 
