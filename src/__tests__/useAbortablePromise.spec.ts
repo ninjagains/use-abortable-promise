@@ -1,7 +1,7 @@
 import { renderHook } from 'react-hooks-testing-library';
-import useAbortablePromise from '../';
+import { useAbortablePromise } from '../';
 
-const delay = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 
 test('pending', () => {
   const { result } = renderHook(() =>
@@ -11,7 +11,7 @@ test('pending', () => {
   expect(result.current[0]).toEqual({
     data: null,
     error: null,
-    loading: true
+    loading: true,
   });
 });
 
@@ -25,7 +25,7 @@ test('resolved', async () => {
   expect(result.current[0]).toEqual({
     data: 'Hello World',
     error: null,
-    loading: false
+    loading: false,
   });
 });
 
@@ -39,7 +39,7 @@ test('rejected', async () => {
   expect(result.current[0]).toEqual({
     data: null,
     error: new Error('error'),
-    loading: false
+    loading: false,
   });
 });
 
@@ -52,8 +52,8 @@ test('custom AbortController', async () => {
       {
         abortController: {
           abort,
-          signal: undefined
-        } as any
+          signal: undefined,
+        } as any,
       }
     )
   );
@@ -69,12 +69,12 @@ test('fetch', async () => {
   let aborted;
   const {
     result: {
-      current: [payload, abort]
-    }
+      current: [payload, abort],
+    },
   } = renderHook(() =>
     useAbortablePromise(
-      signal =>
-        new Promise(resolve => {
+      (signal) =>
+        new Promise((resolve) => {
           signal!.addEventListener('abort', () => {
             aborted = true;
           });
