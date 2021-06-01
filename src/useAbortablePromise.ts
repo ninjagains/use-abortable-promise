@@ -75,7 +75,7 @@ export function useAbortablePromise<T>(
     loading: false,
   });
 
-  const controller = React.useMemo<AbortController>(() => {
+  const controller = React.useMemo(() => {
     return abortController || createAbortController();
   }, [inputs]);
 
@@ -100,15 +100,22 @@ export function useAbortablePromise<T>(
 
     promise(controller.signal).then(
       (result) => {
-        if (unmounted || aborted) return;
+        if (unmounted || aborted) {
+          return;
+        }
+
         dispatch({ type: RESOLVED, data: result });
         if (controller.signal) {
           controller.signal.removeEventListener('abort', abort);
         }
       },
       (error) => {
-        if (unmounted || aborted) return;
+        if (unmounted || aborted) {
+          return;
+        }
+
         dispatch({ type: REJECTED, error });
+
         if (controller.signal) {
           controller.signal.removeEventListener('abort', abort);
         }
