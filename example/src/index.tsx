@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+
 import { render } from 'react-dom';
-import useAbortablePromise from 'use-abortable-promise';
+import { useAbortablePromise } from '../../src';
 
 function timeout(ms = 1000) {
   let timeoutId: any;
