@@ -12,20 +12,24 @@ export type State<T> = {
   loading: boolean;
 };
 
+const PENDING = 0;
+const RESOLVED = 1;
+const REJECTED = 2;
+
 type Action<T> =
   | {
-      type: 'resolved';
+      type: typeof RESOLVED;
       data: T;
     }
   | {
-      type: 'rejected';
+      type: typeof REJECTED;
       error: Error;
     }
-  | { type: 'pending' };
+  | { type: typeof PENDING };
 
 function reducer<T>(state: State<T>, action: Action<T>) {
   switch (action.type) {
-    case 'resolved':
+    case RESOLVED:
       return {
         ...state,
         error: null,
@@ -33,7 +37,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         loading: false,
       };
 
-    case 'rejected':
+    case REJECTED:
       return {
         ...state,
         data: null,
@@ -41,7 +45,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         loading: false,
       };
 
-    case 'pending':
+    case PENDING:
       return {
         ...state,
         error: null,
@@ -72,7 +76,7 @@ export function usePromise<T>(
 
     function abort() {
       aborted = true;
-      dispatch({ type: 'rejected', error: new AbortError() });
+      dispatch({ type: REJECTED, error: new AbortError() });
     }
 
     if (signal) {
@@ -83,17 +87,17 @@ export function usePromise<T>(
       signal.addEventListener('abort', abort);
     }
 
-    dispatch({ type: 'pending' });
+    dispatch({ type: PENDING });
 
     promise().then(
       (result) => {
         if (unmounted || aborted) return;
-        dispatch({ type: 'resolved', data: result });
+        dispatch({ type: RESOLVED, data: result });
         signal && signal.removeEventListener('abort', abort);
       },
       (error) => {
         if (unmounted || aborted) return;
-        dispatch({ type: 'rejected', error });
+        dispatch({ type: REJECTED, error });
         signal && signal.removeEventListener('abort', abort);
       }
     );
