@@ -1,4 +1,4 @@
-import { DependencyList, useEffect, useMemo, useReducer } from 'react';
+import * as React from 'react';
 
 import { createAbortController } from './createAbortController';
 
@@ -66,20 +66,20 @@ export interface UseAbortablePromiseOptions {
 
 export function useAbortablePromise<T>(
   promise: (signal: AbortSignal | undefined) => Promise<T>,
-  inputs: DependencyList,
+  inputs: React.DependencyList,
   { abortController }: UseAbortablePromiseOptions = {}
 ) {
-  const [state, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = React.useReducer(reducer, {
     data: null,
     error: null,
     loading: false,
   });
 
-  const controller = useMemo<AbortController>(() => {
+  const controller = React.useMemo<AbortController>(() => {
     return abortController || createAbortController();
   }, [abortController]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let unmounted = false;
     let aborted = false;
 
