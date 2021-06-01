@@ -1,4 +1,4 @@
-import { renderHook } from 'react-hooks-testing-library';
+import { renderHook } from '@testing-library/react-hooks';
 import { useAbortablePromise } from '../';
 
 const delay = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
