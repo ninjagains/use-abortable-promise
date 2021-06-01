@@ -77,7 +77,7 @@ export function useAbortablePromise<T>(
 
   const controller = React.useMemo<AbortController>(() => {
     return abortController || createAbortController();
-  }, [abortController]);
+  }, [inputs]);
 
   React.useEffect(() => {
     let unmounted = false;
