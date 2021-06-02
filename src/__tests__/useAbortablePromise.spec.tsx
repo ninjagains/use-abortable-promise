@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 
+import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import { useAbortablePromise } from '..';
+import { useMutation } from '../useAbortablePromise';
 
 const delay = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -60,4 +62,41 @@ test('custom AbortController', async () => {
 
   expect(abort).toHaveBeenCalled();
   expect(result.current[0].data).toEqual(null);
+});
+
+test('useMutation', () => {
+  interface Post {
+    title: string;
+    body: string;
+  }
+
+  const posts: Post[] = [];
+
+  function CreatePost() {
+    const [result, createPost] = useMutation<Post, Post>(async (value) => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      posts.push(value);
+      return value;
+    });
+
+    const [{ data }] = useAbortablePromise(async () => {
+      return posts;
+    }, []);
+
+    const handleSubmit: React.FormEventHandler = async (e) => {
+      await createPost({ title: 'Test', body: '' });
+    };
+
+    return (
+      <div>
+        {data?.map((post, i) => (
+          <div key={i}>{post.title}</div>
+        ))}
+        <form onSubmit={handleSubmit}>
+          <input type="text" name="title" />
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    );
+  }
 });

@@ -12,6 +12,7 @@ export type State<T> = {
   data: T | null;
   error: Error | null;
   loading: boolean;
+  resolvedCount: number;
 };
 
 const PENDING = 0;
@@ -37,6 +38,7 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         error: null,
         data: action.data,
         loading: false,
+        resolvedCount: state.resolvedCount + 1,
       };
 
     case REJECTED:
@@ -60,6 +62,13 @@ function reducer<T>(state: State<T>, action: Action<T>) {
   }
 }
 
+const initialState = {
+  data: null,
+  error: null,
+  loading: false,
+  resolvedCount: 0,
+};
+
 export interface UseAbortablePromiseOptions {
   abortController?: AbortController;
 }
@@ -69,11 +78,7 @@ export function useAbortablePromise<T>(
   inputs: React.DependencyList,
   { abortController }: UseAbortablePromiseOptions = {}
 ) {
-  const [state, dispatch] = React.useReducer(reducer, {
-    data: null,
-    error: null,
-    loading: false,
-  });
+  const [state, dispatch] = React.useReducer(reducer, initialState);
 
   const controller = React.useMemo(() => {
     return abortController || createAbortController();
@@ -132,4 +137,25 @@ export function useAbortablePromise<T>(
   }, inputs);
 
   return [state, () => controller.abort()] as [State<T>, () => void];
+}
+
+export function useMutation<Input, ReturnValue>(
+  mutationFn: (value: Input) => Promise<ReturnValue>
+) {
+  const [state, dispatch] = React.useReducer(reducer, initialState);
+
+  const execute = async (value: Input) => {
+    try {
+      dispatch({ type: PENDING });
+      const result = await mutationFn(value);
+      dispatch({ type: RESOLVED, data: result });
+    } catch (error) {
+      dispatch({ type: REJECTED, error });
+    }
+  };
+
+  return [state, execute] as [
+    State<ReturnValue>,
+    (value: Input) => Promise<void>
+  ];
 }
