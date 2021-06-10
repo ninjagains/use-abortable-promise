@@ -1,9 +1,11 @@
 import './index.scss';
 
-import React, { useState } from 'react';
 import { useAbortablePromise, useMutation } from '../../src';
 
-import { render } from 'react-dom';
+import { ErrorBoundary } from 'react-error-boundary';
+import React from 'react';
+// @ts-ignore
+import { createRoot } from 'react-dom';
 
 interface Post {
   id: number;
@@ -89,7 +91,7 @@ async function fetchUserById(
 }
 
 function App() {
-  const [offset, setOffset] = useState(0);
+  const [offset, setOffset] = React.useState(0);
 
   const [{ data, loading, error }, abort] = useAbortablePromise(
     async (signal) => {
@@ -126,4 +128,12 @@ function App() {
   );
 }
 
-render(<App />, document.getElementById('root'));
+createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <ErrorBoundary
+      fallbackRender={({ error }) => <div>Error: {error.message}</div>}
+    >
+      <App />
+    </ErrorBoundary>
+  </React.StrictMode>
+);
