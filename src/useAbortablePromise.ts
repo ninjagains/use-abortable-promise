@@ -80,11 +80,18 @@ export function useAbortablePromise<T>(
 ) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  const controller = React.useMemo(() => {
-    return abortController || createAbortController();
-  }, [inputs]);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  const getAbortController = () => {
+    if (abortControllerRef.current == null) {
+      abortControllerRef.current = abortController || createAbortController();
+    }
+    return abortControllerRef.current;
+  };
 
   React.useEffect(() => {
+    const controller = getAbortController();
+
     let unmounted = false;
     let aborted = false;
 
@@ -130,13 +137,18 @@ export function useAbortablePromise<T>(
     return () => {
       unmounted = true;
       controller.abort();
+      abortControllerRef.current = null;
+
       if (controller.signal) {
         controller.signal.removeEventListener('abort', abort);
       }
     };
   }, inputs);
 
-  return [state, () => controller.abort()] as [State<T>, () => void];
+  return [state, () => abortControllerRef.current?.abort()] as [
+    State<T>,
+    () => void
+  ];
 }
 
 export function useMutation<Input, ReturnValue>(
