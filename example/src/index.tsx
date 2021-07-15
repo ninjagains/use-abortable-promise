@@ -1,11 +1,10 @@
 import './index.scss';
 
-import { useAbortablePromise, useMutation } from '../../src';
-
-import { ErrorBoundary } from 'react-error-boundary';
 import React from 'react';
-// @ts-ignore
 import { createRoot } from 'react-dom';
+import { ErrorBoundary } from 'react-error-boundary';
+
+import { useAbortablePromise, useMutation } from '../../src';
 
 interface Post {
   id: number;
@@ -128,7 +127,7 @@ function App() {
   );
 }
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary
       fallbackRender={({ error }) => <div>Error: {error.message}</div>}
