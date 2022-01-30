@@ -1,10 +1,10 @@
 import './index.scss';
 
+import { useAbortablePromise, useMutation } from '../../src';
+
+import { ErrorBoundary } from 'react-error-boundary';
 import React from 'react';
 import { createRoot } from 'react-dom';
-import { ErrorBoundary } from 'react-error-boundary';
-
-import { useAbortablePromise, useMutation } from '../../src';
 
 interface Post {
   id: number;
@@ -100,7 +100,7 @@ function App() {
           fetchUserById(offset + 2, { signal }),
           fetchUserById(offset + 3, { signal }),
         ]);
-      } catch (error) {
+      } catch (error: any) {
         if (error.message === 'Timeout') {
           abort();
         }
