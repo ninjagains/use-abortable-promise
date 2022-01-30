@@ -161,7 +161,7 @@ export function useMutation<Input, ReturnValue>(
       dispatch({ type: PENDING });
       const result = await mutationFn(value);
       dispatch({ type: RESOLVED, data: result });
-    } catch (error) {
+    } catch (error: any) {
       dispatch({ type: REJECTED, error });
     }
   };
