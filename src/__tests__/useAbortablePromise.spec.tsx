@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 import React from 'react';
@@ -43,7 +44,7 @@ test('rejected', async () => {
 });
 
 test('custom AbortController', async () => {
-  const abort = jest.fn();
+  const abort = vi.fn();
   const { result, unmount } = renderHook(() =>
     useAbortablePromise(
       () => delay(1000).then(() => Promise.resolve('should have been aborted')),
