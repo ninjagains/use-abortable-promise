@@ -4,7 +4,7 @@ import { useAbortablePromise, useMutation } from '../../src';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import React from 'react';
-import { createRoot } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 interface Post {
   id: number;
@@ -20,6 +20,9 @@ function Posts() {
 
   const [mutation, createPost] = useMutation<Post, Post>(async (value) => {
     await new Promise((resolve) => setTimeout(resolve, 400));
+    if (value.title === '1') {
+      throw new Error('Fo');
+    }
     posts.push(value);
     return value;
   });
@@ -33,10 +36,11 @@ function Posts() {
   const handleSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
     const title = titleRef.current?.value.trim() || 'Untitled';
-    await createPost({ id: postId++, title, body: '' });
+    const post = await createPost({ id: postId++, title, body: '' });
     if (titleRef.current) {
       titleRef.current.value = '';
     }
+    console.log({ post });
   };
 
   return (
@@ -46,6 +50,7 @@ function Posts() {
         <div key={post.id}>{post.title}</div>
       ))}
       {query.data?.length === 0 && <>No posts :(</>}
+      {mutation.error && <p>Failed</p>}
       <form onSubmit={handleSubmit} method="post">
         <input ref={titleRef} type="text" name="title" />
         <button type="submit" disabled={mutation.loading}>

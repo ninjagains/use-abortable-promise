@@ -161,13 +161,12 @@ export function useMutation<Input, ReturnValue>(
       dispatch({ type: PENDING });
       const result = await mutationFn(value);
       dispatch({ type: RESOLVED, data: result });
+      return result;
     } catch (error: any) {
       dispatch({ type: REJECTED, error });
+      throw error;
     }
   };
 
-  return [state, execute] as [
-    State<ReturnValue>,
-    (value: Input) => Promise<void>
-  ];
+  return [state, execute] as const;
 }
