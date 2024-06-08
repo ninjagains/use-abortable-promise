@@ -156,7 +156,7 @@ export function useMutation<Input, ReturnValue>(
 ) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  const execute = async (value: Input) => {
+  const execute = React.useCallback(async (value: Input) => {
     try {
       dispatch({ type: PENDING });
       const result = await mutationFn(value);
@@ -166,7 +166,7 @@ export function useMutation<Input, ReturnValue>(
       dispatch({ type: REJECTED, error });
       throw error;
     }
-  };
+  }, []);
 
   return [state, execute] as const;
 }
