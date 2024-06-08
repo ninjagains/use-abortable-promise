@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
@@ -54,8 +54,8 @@ test('custom AbortController', async () => {
           abort,
           signal: undefined,
         } as any,
-      }
-    )
+      },
+    ),
   );
 
   unmount();
@@ -65,7 +65,7 @@ test('custom AbortController', async () => {
   expect(result.current[0].data).toEqual(null);
 });
 
-test('useMutation', () => {
+test('useMutation', async () => {
   interface Post {
     title: string;
     body: string;
@@ -74,30 +74,48 @@ test('useMutation', () => {
   const posts: Post[] = [];
 
   function CreatePost() {
-    const [result, createPost] = useMutation<Post, Post>(async (value) => {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      posts.push(value);
-      return value;
-    });
+    const [result, createPost, reset] = useMutation<Post, Post>(
+      async (value) => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        posts.push(value);
+        return value;
+      },
+    );
 
     const [{ data }] = useAbortablePromise(async () => {
       return posts;
     }, []);
 
     const handleSubmit: React.FormEventHandler = async (e) => {
-      await createPost({ title: 'Test', body: '' });
+      await createPost({ title: 'Test123', body: '' });
     };
 
     return (
       <div>
-        {data?.map((post, i) => (
-          <div key={i}>{post.title}</div>
-        ))}
+        <span data-testid="resolvedCount">{result.resolvedCount}</span>
+        {data?.map((post, i) => <div key={i}>{post.title}</div>)}
         <form onSubmit={handleSubmit}>
           <input type="text" name="title" />
           <button type="submit">Submit</button>
         </form>
+
+        <button type="button" onClick={reset}>
+          Reset
+        </button>
       </div>
     );
   }
+
+  render(<CreatePost />);
+  screen.getByRole('button', { name: 'Submit' }).click();
+
+  await delay(100);
+
+  screen.getByText('Test123');
+  expect(screen.getByTestId('resolvedCount').innerHTML).toEqual('1');
+
+  screen.getByRole('button', { name: 'Reset' }).click();
+  await delay(100);
+
+  expect(screen.getByTestId('resolvedCount').innerHTML).toEqual('0');
 });

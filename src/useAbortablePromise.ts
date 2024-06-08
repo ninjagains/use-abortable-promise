@@ -8,6 +8,10 @@ class AbortError extends Error {
   }
 }
 
+const assertNever = (_t: never): never => {
+  throw new Error();
+};
+
 export type State<T> = {
   data: T | null;
   error: Error | null;
@@ -18,6 +22,7 @@ export type State<T> = {
 const PENDING = 0;
 const RESOLVED = 1;
 const REJECTED = 2;
+const RESET = 3;
 
 type Action<T> =
   | {
@@ -28,7 +33,8 @@ type Action<T> =
       type: typeof REJECTED;
       error: Error;
     }
-  | { type: typeof PENDING };
+  | { type: typeof PENDING }
+  | { type: typeof RESET };
 
 function reducer<T>(state: State<T>, action: Action<T>) {
   switch (action.type) {
@@ -57,7 +63,11 @@ function reducer<T>(state: State<T>, action: Action<T>) {
         loading: true,
       };
 
+    case RESET:
+      return initialState;
+
     default:
+      assertNever(action);
       throw new Error();
   }
 }
@@ -168,5 +178,9 @@ export function useMutation<Input, ReturnValue>(
     }
   }, []);
 
-  return [state, execute] as const;
+  const reset = React.useCallback(() => {
+    dispatch({ type: RESET });
+  }, []);
+
+  return [state, execute, reset] as const;
 }
