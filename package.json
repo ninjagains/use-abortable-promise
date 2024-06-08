@@ -26,8 +26,9 @@
   "license": "MIT",
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
-    "prepublishOnly": "yarn build",
-    "test": "vitest"
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@testing-library/react": "^12.1.3",
