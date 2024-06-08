@@ -18,7 +18,7 @@ const posts: Post[] = [];
 function Posts() {
   const titleRef = React.useRef<HTMLInputElement>(null);
 
-  const [mutation, createPost] = useMutation<Post, Post>(async (value) => {
+  const [result, createPost, reset] = useMutation<Post, Post>(async (value) => {
     await new Promise((resolve) => setTimeout(resolve, 400));
     if (value.title === '1') {
       throw new Error('Fo');
@@ -31,7 +31,7 @@ function Posts() {
     await new Promise((resolve) => setTimeout(resolve, 200));
     return posts.slice();
     // Trigger a re-fetch every time the mutation resolves
-  }, [mutation.resolvedCount]);
+  }, [result.resolvedCount]);
 
   const handleSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
@@ -45,16 +45,18 @@ function Posts() {
 
   return (
     <div>
+      <pre>{JSON.stringify(result, null, 2)}</pre>
       {query.loading && <>Fetching posts...</>}
-      {query.data?.map((post) => (
-        <div key={post.id}>{post.title}</div>
-      ))}
+      {query.data?.map((post) => <div key={post.id}>{post.title}</div>)}
       {query.data?.length === 0 && <>No posts :(</>}
-      {mutation.error && <p>Failed</p>}
+      {result.error && <p>Failed</p>}
       <form onSubmit={handleSubmit} method="post">
         <input ref={titleRef} type="text" name="title" />
-        <button type="submit" disabled={mutation.loading}>
+        <button type="submit" disabled={result.loading}>
           Submit
+        </button>
+        <button type="button" onClick={reset}>
+          Reset
         </button>
       </form>
     </div>
@@ -79,7 +81,7 @@ function timeout(ms = 1000) {
 
 async function fetchUserById(
   id: number,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<{ id: number; name: string }> {
   const { start, clear } = timeout(1000);
   const response = await Promise.race([
@@ -113,7 +115,7 @@ function App() {
         throw error;
       }
     },
-    [offset]
+    [offset],
   );
 
   return (
@@ -139,5 +141,5 @@ createRoot(document.getElementById('root')!).render(
     >
       <App />
     </ErrorBoundary>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
