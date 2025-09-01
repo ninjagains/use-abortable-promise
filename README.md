@@ -31,7 +31,7 @@ function App() {
         throw error;
       }
     },
-    [offset]
+    [offset],
   );
 
   return (
@@ -127,7 +127,7 @@ function UserList() {
         fetch('/users/active'),
         Promise.resolve(Math.random()),
       ]),
-    [refreshCount]
+    [refreshCount],
   );
 
   return (

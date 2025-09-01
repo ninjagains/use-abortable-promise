@@ -86,7 +86,7 @@ export interface UseAbortablePromiseOptions {
 export function useAbortablePromise<T>(
   promise: (signal: AbortSignal | undefined) => Promise<T>,
   inputs: React.DependencyList,
-  { abortController }: UseAbortablePromiseOptions = {}
+  { abortController }: UseAbortablePromiseOptions = {},
 ) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
@@ -141,7 +141,7 @@ export function useAbortablePromise<T>(
         if (controller.signal) {
           controller.signal.removeEventListener('abort', abort);
         }
-      }
+      },
     );
 
     return () => {
@@ -157,12 +157,12 @@ export function useAbortablePromise<T>(
 
   return [state, () => abortControllerRef.current?.abort()] as [
     State<T>,
-    () => void
+    () => void,
   ];
 }
 
 export function useMutation<Input, ReturnValue>(
-  mutationFn: (value: Input) => Promise<ReturnValue>
+  mutationFn: (value: Input) => Promise<ReturnValue>,
 ) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 

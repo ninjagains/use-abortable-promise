@@ -47,7 +47,9 @@ function Posts() {
     <div>
       <pre>{JSON.stringify(result, null, 2)}</pre>
       {query.loading && <>Fetching posts...</>}
-      {query.data?.map((post) => <div key={post.id}>{post.title}</div>)}
+      {query.data?.map((post) => (
+        <div key={post.id}>{post.title}</div>
+      ))}
       {query.data?.length === 0 && <>No posts :(</>}
       {result.error && <p>Failed</p>}
       <form onSubmit={handleSubmit} method="post">

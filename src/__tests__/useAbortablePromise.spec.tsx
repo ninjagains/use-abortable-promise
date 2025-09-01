@@ -93,7 +93,9 @@ test('useMutation', async () => {
     return (
       <div>
         <span data-testid="resolvedCount">{result.resolvedCount}</span>
-        {data?.map((post, i) => <div key={i}>{post.title}</div>)}
+        {data?.map((post, i) => (
+          <div key={i}>{post.title}</div>
+        ))}
         <form onSubmit={handleSubmit}>
           <input type="text" name="title" />
           <button type="submit">Submit</button>
