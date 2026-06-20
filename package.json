@@ -5,7 +5,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
-  "repository": "git@github.com:ninjagains/use-abortable-promise.git",
+  "repository": "git+https://github.com/ninjagains/use-abortable-promise.git",
   "keywords": [
     "AbortController",
     "react",
