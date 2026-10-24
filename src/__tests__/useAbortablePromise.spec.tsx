@@ -87,6 +87,7 @@ test('useMutation', async () => {
     }, []);
 
     const handleSubmit: React.FormEventHandler = async (e) => {
+      e.preventDefault();
       await createPost({ title: 'Test123', body: '' });
     };
 
@@ -111,13 +112,13 @@ test('useMutation', async () => {
   render(<CreatePost />);
   screen.getByRole('button', { name: 'Submit' }).click();
 
-  await delay(100);
-
-  screen.getByText('Test123');
-  expect(screen.getByTestId('resolvedCount').innerHTML).toEqual('1');
+  await screen.findByText('Test123');
+  await waitFor(() =>
+    expect(screen.getByTestId('resolvedCount').innerHTML).toEqual('1'),
+  );
 
   screen.getByRole('button', { name: 'Reset' }).click();
-  await delay(100);
-
-  expect(screen.getByTestId('resolvedCount').innerHTML).toEqual('0');
+  await waitFor(() =>
+    expect(screen.getByTestId('resolvedCount').innerHTML).toEqual('0'),
+  );
 });
