@@ -36,7 +36,7 @@ type Action<T> =
   | { type: typeof PENDING }
   | { type: typeof RESET };
 
-function reducer<T>(state: State<T>, action: Action<T>) {
+function reducer<T>(state: State<T>, action: Action<T>): State<T> {
   switch (action.type) {
     case RESOLVED:
       return {
@@ -88,7 +88,7 @@ export function useAbortablePromise<T>(
   inputs: React.DependencyList,
   { abortController }: UseAbortablePromiseOptions = {},
 ) {
-  const [state, dispatch] = React.useReducer(reducer, initialState);
+  const [state, dispatch] = React.useReducer(reducer<T>, initialState);
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
@@ -164,7 +164,10 @@ export function useAbortablePromise<T>(
 export function useMutation<Input, ReturnValue>(
   mutationFn: (value: Input) => Promise<ReturnValue>,
 ) {
-  const [state, dispatch] = React.useReducer(reducer, initialState);
+  const [state, dispatch] = React.useReducer(
+    reducer<ReturnValue>,
+    initialState,
+  );
 
   const execute = React.useCallback(async (value: Input) => {
     try {

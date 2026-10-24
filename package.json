@@ -1,9 +1,15 @@
 {
   "name": "use-abortable-promise",
   "version": "3.5.0",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "sideEffects": false,
   "repository": "git@github.com:ninjagains/use-abortable-promise.git",
   "keywords": [
@@ -25,7 +31,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "NODE_ENV=production rollup -c",
+    "build": "tsc --noEmit && NODE_ENV=production rollup -c",
     "prepublishOnly": "pnpm run build",
     "test": "vitest",
     "format": "prettier --write ."
